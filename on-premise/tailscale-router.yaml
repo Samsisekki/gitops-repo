@@ -1,0 +1,68 @@
+# 1. Tailscale 전용 신분증 (ServiceAccount)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tailscale
+
+# 2. 금고(Secret) 접근을 허락하는 권한 목록 (Role)
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tailscale
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["tailscale"]
+  verbs: ["get", "update", "patch"]
+
+# 3. 신분증과 권한을 연결 (RoleBinding)
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tailscale
+subjects:
+- kind: ServiceAccount
+  name: tailscale
+roleRef:
+  kind: Role
+  name: tailscale
+  apiGroup: rbac.authorization.k8s.io
+
+# 4. Tailscale 파드 배포
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-subnet-router
+  labels:
+    app: tailscale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tailscale
+  template:
+    metadata:
+      labels:
+        app: tailscale
+    spec:
+      serviceAccountName: tailscale # 핵심! 위에서 만든 신분증을 목에 걸어줌
+      containers:
+      - name: tailscale
+        image: tailscale/tailscale:latest
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN", "NET_RAW"]
+        env:
+        - name: TS_AUTHKEY
+          valueFrom:
+            secretKeyRef:
+              name: tailscale-auth
+              key: TS_AUTHKEY
+        - name: TS_ROUTES
+          value: "192.168.56.0/24,10.244.0.0/16,10.96.0.0/12"
