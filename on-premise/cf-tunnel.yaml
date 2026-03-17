@@ -1,0 +1,23 @@
+# Cloudflare Quick Tunnel 파드
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflare-quick-tunnel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cf-tunnel
+  template:
+    metadata:
+      labels:
+        app: cf-tunnel
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker-node-1 # 핵심!
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        # "NGINX Ingress Controller의 주소로 땅굴을 연결해라!" 라는 명령어
+        command: ["cloudflared", "tunnel", "--url", "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"]
