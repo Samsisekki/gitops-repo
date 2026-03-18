@@ -6,7 +6,3 @@ phpApp:
   image: "php:8.0-apache"
   nodeSelector: "worker-node-1" # AWS로 갈 땐 이걸 지우거나 바꾸면 됨!
 
-# Cloudflare Tunnel 설정
-cloudflare:
-  image: "cloudflare/cloudflared:latest"
-  ingressUrl: "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"
