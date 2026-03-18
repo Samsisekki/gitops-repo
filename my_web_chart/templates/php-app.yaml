@@ -19,7 +19,7 @@ kind: Deployment
 metadata:
   name: php-app
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }} # values.yaml에서 숫자를 가져옴!
   selector:
     matchLabels:
       app: php
@@ -29,10 +29,10 @@ spec:
         app: php
     spec:
       nodeSelector:
-        kubernetes.io/hostname: worker-node-1 # 핵심!
+        kubernetes.io/hostname: {{ .Values.phpApp.nodeSelector }}
       containers:
       - name: php
-        image: php:8.0-apache
+        image: {{ .Values.phpApp.image }}
         ports:
         - containerPort: 80
         volumeMounts:

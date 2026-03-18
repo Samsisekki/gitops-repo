@@ -20,4 +20,4 @@ spec:
       - name: cloudflared
         image: cloudflare/cloudflared:latest
         # "NGINX Ingress Controller의 주소로 땅굴을 연결해라!" 라는 명령어
-        command: ["cloudflared", "tunnel", "--url", "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"]
+        command: ["cloudflared", "tunnel", "--url", "{{ .Values.cloudflare.ingressUrl }}"]

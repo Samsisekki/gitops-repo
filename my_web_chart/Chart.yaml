@@ -1,0 +1,5 @@
+apiVersion: v2
+name: my-web-chart
+description: 온프레미스와 AWS를 통합하는 Helm Chart
+version: 0.1.0
+appVersion: 1.0.0
