@@ -35,6 +35,15 @@ spec:
         image: {{ .Values.phpApp.image }}
         ports:
         - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: {{ .Values.db.host | quote }} # quote : 문자열로 인식하게 해주는 helm 함수
+        - name: DB_USER
+          value: {{ .Values.db.user | quote }}
+        - name: DB_PASSWORD
+          value: {{ .Values.db.password | quote }}
+        - name: DB_NAME
+          value: {{ .Values.db.name | quote }}
         volumeMounts:
         - name: code
           mountPath: /var/www/html
