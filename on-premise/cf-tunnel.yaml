@@ -19,5 +19,7 @@ spec:
       containers:
       - name: cloudflared
         image: cloudflare/cloudflared:latest
-        # "NGINX Ingress Controller의 주소로 땅굴을 연결해라!" 라는 명령어
-        command: ["cloudflared", "tunnel", "--url", "http://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80"]
+        args: ["tunnel", "--no-autoupdate", "run"] # 실제 토큰으로 교체 필요
+        env:
+        - name: TUNNEL_TOKEN
+          value: "eyJhIjoiYjY5NjJlNjhlOGIzOWI1YmNkNWUyYTJjMzJmYjQyNzIiLCJ0IjoiN2Q2YmYzMjAtYjc3OC00ZTZkLTg1NzMtNjVjZDA5MDhjZTcyIiwicyI6Ik0yTm1ObVE0WXpZdFpHRmhZeTAwTURkaUxXSXpNMlF0TkRSbFpXWTNZMll6TWpnNCJ9" # 실제 토큰으로 교체 필요
