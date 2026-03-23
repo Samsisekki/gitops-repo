@@ -8,7 +8,7 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 192.168.56.12 # 워커 노드 2번의 IP (NFS 서버)
+    server: 192.168.56.11 # 워커 노드 2번의 IP (NFS 서버)
     path: /nfs_shared/mysql # 아까 만든 물리적 폴더 경로
 ---
 apiVersion: v1
