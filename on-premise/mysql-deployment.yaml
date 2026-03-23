@@ -37,8 +37,10 @@ kind: Service
 metadata:
   name: mysql-service
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 3306
+    targetPort: 3306
+    nodePort: 30306  # 워커 노드에 뚫어둘 고정 포트 (30000~32767 사이)
   selector:
     app: mysql

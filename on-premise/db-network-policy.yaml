@@ -21,14 +21,13 @@ spec:
     - protocol: TCP
       port: 3306
 
-  # 👉 [출입증 2번] AWS 동기화(DMS) 및 관리 통신을 위한 Tailscale 라우터 허용
+  # 👉 [출입증 2번] AWS 동기화를 위해 외부(AWS VPC 및 Tailscale)에서 들어오는 IP 대역 통째로 허용!
   - from:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          app: tailscale
+    - ipBlock:
+        cidr: 100.64.0.0/10   # Tailscale 기본 IP 대역 (이 대역에서 오는 건 다 허용)
+  - from:
+    - ipBlock:
+        cidr: 10.0.0.0/16     # AWS 팀원의 VPC 사설망 대역 (팀원 설정에 따라 다를 수 있음, 예시)
     ports:
     - protocol: TCP
       port: 3306
