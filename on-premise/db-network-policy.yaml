@@ -1,4 +1,4 @@
-# db-network-policy.yaml (모니터링 요원 추가 버전)
+# db-network-policy.yaml (완벽 교정본)
 
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -21,18 +21,29 @@ spec:
     - protocol: TCP
       port: 3306
 
-  # 👉 [출입증 2번] AWS 동기화를 위해 외부(AWS VPC 및 Tailscale)에서 들어오는 IP 대역 통째로 허용!
+  # 👉 [출입증 2번] K8s 내부의 Tailscale 라우터 파드 허용
   - from:
-    - ipBlock:
-        cidr: 100.64.0.0/10   # Tailscale 기본 IP 대역 (이 대역에서 오는 건 다 허용)
-  - from:
-    - ipBlock:
-        cidr: 10.0.0.0/16     # AWS 팀원의 VPC 사설망 대역 (팀원 설정에 따라 다를 수 있음, 예시)
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          app: tailscale
     ports:
     - protocol: TCP
       port: 3306
 
-  # 👉 [출입증 3번] 추가! 모니터링 데이터를 수집할 mysqld-exporter 파드 허용
+  # 👉 [출입증 3번] 외부(Tailscale 망 및 AWS VPC)에서 들어오는 IP 대역 통째로 허용
+  - from:
+    - ipBlock:
+        cidr: 100.64.0.0/10   # Tailscale 기본 IP 대역
+    - ipBlock:
+        cidr: 10.0.0.0/16     # AWS 팀원의 VPC 사설망 대역 (팀원 설정에 맞게 수정!)
+    ports:
+    - protocol: TCP
+      port: 3306
+
+  # 👉 [출입증 4번] 모니터링 데이터를 수집할 mysqld-exporter 파드 허용
   - from:
     - podSelector:
         matchLabels:
