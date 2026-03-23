@@ -1,0 +1,43 @@
+# db-network-policy.yaml (모니터링 요원 추가 버전)
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mysql-protection
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: mysql  # 이 방화벽은 MySQL 파드를 보호합니다.
+  policyTypes:
+  - Ingress
+  ingress:
+  # 👉 [출입증 1번] PHP 파드 허용
+  - from:
+    - podSelector:
+        matchLabels:
+          app: php
+    ports:
+    - protocol: TCP
+      port: 3306
+
+  # 👉 [출입증 2번] AWS 동기화(DMS) 및 관리 통신을 위한 Tailscale 라우터 허용
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          app: tailscale
+    ports:
+    - protocol: TCP
+      port: 3306
+
+  # 👉 [출입증 3번] 추가! 모니터링 데이터를 수집할 mysqld-exporter 파드 허용
+  - from:
+    - podSelector:
+        matchLabels:
+          app: mysql-exporter
+    ports:
+    - protocol: TCP
+      port: 3306
