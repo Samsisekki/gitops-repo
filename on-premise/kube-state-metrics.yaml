@@ -9,6 +9,11 @@ spec:
     repoURL: 'https://prometheus-community.github.io/helm-charts'
     chart: kube-state-metrics
     targetRevision: 5.25.1 # KSM 최신 안정화 버전
+    helm:
+      values: |
+        service:
+          type: NodePort
+          nodePort: 30081 # (선택사항) 포트를 30081로 고정하고 싶을 때
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring # 아까 Node Exporter와 같은 모니터링 방에 합류시킵니다!
@@ -16,8 +21,4 @@ spec:
     automated:
       prune: true
       selfHeal: true
-  helm:
-    values: |
-      service:
-        type: NodePort
-        nodePort: 30081 # (선택사항) 포트를 30081로 고정하고 싶을 때
+  
