@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-state-metrics
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    chart: kube-state-metrics
+    targetRevision: 5.25.1 # KSM 최신 안정화 버전
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring # 아까 Node Exporter와 같은 모니터링 방에 합류시킵니다!
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
