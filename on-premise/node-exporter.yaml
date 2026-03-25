@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-exporter
+  namespace: argocd # ArgoCD가 설치된 네임스페이스
+spec:
+  project: default
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts' # 프로메테우스 공식 헬름 저장소 주소
+    chart: prometheus-node-exporter # 설치할 엑스포터 이름
+    targetRevision: 4.32.0 # 차트 버전 (안정적인 최신 버전)
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring # 이 엑스포터가 설치될 타겟 네임스페이스
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true # 핵심 마법! monitoring 네임스페이스가 없으면 자기가 알아서 만듭니다.
