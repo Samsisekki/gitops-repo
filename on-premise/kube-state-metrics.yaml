@@ -16,7 +16,7 @@ spec:
     automated:
       prune: true
       selfHeal: true
-helm:
+    helm:
       values: |
         service:
           type: NodePort
