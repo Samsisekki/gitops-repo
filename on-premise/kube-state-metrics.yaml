@@ -16,3 +16,8 @@ spec:
     automated:
       prune: true
       selfHeal: true
+helm:
+      values: |
+        service:
+          type: NodePort
+          nodePort: 30081 # (선택사항) 포트를 30081로 고정하고 싶을 때
