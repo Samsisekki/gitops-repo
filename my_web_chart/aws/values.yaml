@@ -4,7 +4,6 @@ replicaCount: 1
 # PHP 앱 설정
 phpApp:
   image: "php:8.0-apache"
-  nodeSelector: "worker-node-1" # AWS로 갈 땐 이걸 지우거나 바꾸면 됨!
 
 db:
   host: "mysql-service"   # AWS 팀원은 배포할 때 이 값을 RDS 엔드포인트 주소로 바꾸면 됨!
