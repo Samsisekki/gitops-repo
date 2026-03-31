@@ -69,7 +69,6 @@ spec:
   ports:
   - port: 80
     targetPort: 80
-    nodePort: 30080
 ---
 # 4. 기존 NGINX Ingress 라우팅 규칙 (사용 안함, 참고용으로 주석 처리)
 # apiVersion: networking.k8s.io/v1
