@@ -10,7 +10,7 @@ data:
     <?php
     echo "<h1>성공! K8s PHP 웹 서버에 접속하셨습니다!</h1>";
     echo "<h2>현재 이 파드가 떠 있는 노드: " . gethostname() . "</h2>";
-    echo "<p>Cloudflare Tunnel -> NGINX Ingress -> PHP Pod 통신 완벽 성공!</p>";
+    echo "<p>AWS ALB -> PHP Pod 통신 성공!</p>";
     ?>
 ---
 # 2. PHP 파드 (워커 노드 1번 고정)
@@ -28,8 +28,6 @@ spec:
       labels:
         app: php
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: {{ .Values.phpApp.nodeSelector }}
       containers:
       - name: php
         image: {{ .Values.phpApp.image }}
@@ -44,6 +42,13 @@ spec:
           value: {{ .Values.db.password | quote }}
         - name: DB_NAME
           value: {{ .Values.db.name | quote }}
+        resources:
+          requests:
+            cpu: {{ .Values.resources.requests.cpu }}
+            memory: {{ .Values.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
         volumeMounts:
         - name: code
           mountPath: /var/www/html
@@ -52,26 +57,55 @@ spec:
         configMap:
           name: php-index
 ---
-# 3. K8s 내부 통신용 서비스
+# 3. AWS ALB 연결용 서비스
 apiVersion: v1
 kind: Service
 metadata:
   name: php-service
 spec:
+  type: NodePort
   selector:
     app: php
   ports:
   - port: 80
     targetPort: 80
+    nodePort: 30080
 ---
-# 4. NGINX Ingress 라우팅 규칙 (정문 안내데스크)
+# 4. 기존 NGINX Ingress 라우팅 규칙 (사용 안함, 참고용으로 주석 처리)
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: php-ingress
+#   annotations:
+#     kubernetes.io/ingress.class: "nginx"
+# spec:
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: php-service
+#             port:
+#               number: 80
+---
+# 5. AWS ALB Ingress 라우팅 규칙
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: php-ingress
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    alb.ingress.kubernetes.io/load-balancer-name: hybrid-dr-alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: instance
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "10"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
 spec:
+  ingressClassName: alb
   rules:
   - http:
       paths:
@@ -82,3 +116,23 @@ spec:
             name: php-service
             port:
               number: 80
+---
+# 6. HPA 설정
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: php-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-app
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.hpa.targetCPUUtilizationPercentage }}
