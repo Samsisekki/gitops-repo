@@ -3,7 +3,7 @@ replicaCount: 1
 
 # PHP 앱 설정
 phpApp:
-  image: "php:8.0-apache"
+  image: "larkracl/hybrid-dr-web:875f1dfe312a640b68a6c4a27be398f9f7e57f6d"
   nodeSelector: "worker-node-1" # AWS로 갈 땐 이걸 지우거나 바꾸면 됨!
 
 db:

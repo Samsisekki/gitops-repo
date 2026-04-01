@@ -3,11 +3,23 @@ replicaCount: 1
 
 # PHP 앱 설정
 phpApp:
-  image: "php:8.0-apache"
-  nodeSelector: "worker-node-1" # AWS로 갈 땐 이걸 지우거나 바꾸면 됨!
+  image: "larkracl/hybrid-dr-web:875f1dfe312a640b68a6c4a27be398f9f7e57f6d"
 
 db:
   host: "mysql-service"   # AWS 팀원은 배포할 때 이 값을 RDS 엔드포인트 주소로 바꾸면 됨!
   user: "root"
   password: "password123!" # (주의: 실무에서는 Secret으로 빼지만, 지금은 테스트용으로 직관성 있게 갑니다)
   name: "dr_test_db"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
