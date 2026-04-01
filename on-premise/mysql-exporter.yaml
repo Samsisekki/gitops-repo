@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mysql-exporter
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    chart: prometheus-mysql-exporter
+    targetRevision: 2.5.2 # 안정적인 버전
+    helm:
+      values: |
+        mysql:
+          user: "root"
+          password: "password123!"
+          host: "mysql-service.default.svc.cluster.local" # ★ 핵심: 크로스 네임스페이스 DNS
+          port: 3306
+        service:
+          type: NodePort
+          nodePort: 30082 # (선택사항) 포트를 30082로 고정
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring # 모니터링 방에 함께 띄웁니다.
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
