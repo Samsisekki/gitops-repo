@@ -39,6 +39,8 @@ spec:
             cidr: 100.64.0.0/10 # Tailscale 기본 IP 대역
         - ipBlock:
             cidr: 192.168.0.0/16 # AWS 팀원의 VPC 사설망 대역 (팀원 설정에 맞게 수정!)
+        - ipBlock:  # ⭐ 이거 한 블록만 추가해 주세요! ⭐
+            cidr: 10.244.0.0/16 # K8s 내부 파드 네트워크 (calico) 대역
       ports:
         - protocol: TCP
           port: 3306
