@@ -1,17 +1,4 @@
 # 웹/앱 pod 및 ingress 연결
-
-# 1. 화면에 보여줄 임시 PHP 코드 (ConfigMap)
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: php-index
-data:
-  index.php: |
-    <?php
-    echo "<h1>성공! K8s PHP 웹 서버에 접속하셨습니다!</h1>";
-    echo "<h2>현재 이 파드가 떠 있는 노드: " . gethostname() . "</h2>";
-    echo "<p>AWS ALB -> PHP Pod 통신 성공!</p>";
-    ?>
 ---
 # 2. PHP 파드 (워커 노드 1번 고정)
 apiVersion: apps/v1
@@ -49,13 +36,7 @@ spec:
           limits:
             cpu: {{ .Values.resources.limits.cpu }}
             memory: {{ .Values.resources.limits.memory }}
-        volumeMounts:
-        - name: code
-          mountPath: /var/www/html
-      volumes:
-      - name: code
-        configMap:
-          name: php-index
+        
 ---
 # 3. AWS ALB 연결용 서비스
 apiVersion: v1
