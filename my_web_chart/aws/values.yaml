@@ -3,7 +3,7 @@ replicaCount: 1
 
 # PHP 앱 설정
 phpApp:
-  image: "larkracl/hybrid-dr-web:875f1dfe312a640b68a6c4a27be398f9f7e57f6d"
+  image: "larkracl/hybrid-dr-web:f95712676a1bbcfa82b8a6f61e636dc03bf6a603"
 
 db:
   host: "mysql-service"   # AWS 팀원은 배포할 때 이 값을 RDS 엔드포인트 주소로 바꾸면 됨!
