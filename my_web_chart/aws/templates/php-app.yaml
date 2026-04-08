@@ -6,7 +6,7 @@ kind: Deployment
 metadata:
   name: php-app
 spec:
-  replicas: {{ .Values.replicaCount }} # values.yaml에서 숫자를 가져옴!
+  # replicas: {{ .Values.replicaCount }} # values.yaml에서 숫자를 가져옴!
   selector:
     matchLabels:
       app: php
